@@ -1,0 +1,142 @@
+# Pandas Alıştırmalar
+##################################################
+
+import numpy as np
+import seaborn as sns
+import pandas as pd
+
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 1000)
+
+#########################################
+# Görev 1: Seaborn kütüphanesi içerisinden Titanic veri setini tanımlayınız.
+#########################################
+titanic = sns.load_dataset("titanic")
+
+#########################################
+# Görev 2: Yukarıda tanımlanan Titanic veri setindeki kadın ve erkek yolcuların sayısını bulunuz.
+#########################################
+
+titanic["sex"].value_counts()
+
+#########################################
+# Görev 3: Her bir sutuna ait unique değerlerin sayısını bulunuz.
+#########################################
+
+titanic.nunique()
+
+#########################################
+# Görev 4: pclass değişkeninin unique değerleri bulunuz.
+#########################################
+
+titanic['pclass'].nunique()
+
+#########################################
+# Görev 5:  pclass ve parch değişkenlerinin unique değerlerinin sayısını bulunuz.
+#########################################
+
+titanic[["parch", "pclass"]].nunique()
+
+#########################################
+# Görev 6: embarked değişkeninin tipini kontrol ediniz. Tipini category olarak değiştiriniz. Tekrar tipini kontrol ediniz.
+#########################################
+
+titanic["embarked"].dtypes
+titanic["embarked"] = titanic["embarked"].astype("category")
+titanic["embarked"].dtypes
+#########################################
+# Görev 7: embarked değeri C olanların tüm bilgelerini gösteriniz.
+#########################################
+titanic["embarked"] == "C"
+
+#########################################
+# Görev 8: embarked değeri S olmayanların tüm bilgelerini gösteriniz.
+#########################################
+titanic['embarked'] != "S"
+
+#########################################
+# Görev 9: Yaşı 30 dan küçük ve kadın olan yolcuların tüm bilgilerini gösteriniz.
+#########################################
+
+titanic[(titanic["age"] < 30) & (titanic["sex"] == "female")]
+
+#########################################
+# Görev 10: Fare'i 500'den büyük veya yaşı 70 den büyük yolcuların bilgilerini gösteriniz.
+#########################################
+
+titanic[(titanic["fare"] > 500) | (titanic["age"] > 70)]
+
+#########################################
+# Görev 11: Her bir değişkendeki boş değerlerin toplamını bulunuz.
+#########################################
+titanic.isnull().sum()
+
+#########################################
+# Görev 12: who değişkenini dataframe'den düşürün.
+#########################################
+titanic.drop(columns="who", inplace=True)
+titanic.head()
+
+#########################################
+# Görev 13: deck değikenindeki boş değerleri deck değişkenin en çok tekrar eden değeri (mode) ile doldurunuz.
+#########################################
+titanic["deck"].fillna(titanic["deck"].mode()[0], inplace=True)
+
+#########################################
+# Görev 14: age değikenindeki boş değerleri age değişkenin medyanı ile doldurun.
+#########################################
+
+titanic["age"].fillna(titanic["age"].median(), inplace=True)
+
+#########################################
+# Görev 15: survived değişkeninin Pclass ve Cinsiyet değişkenleri kırılımınında sum, count, mean değerlerini bulunuz.
+#########################################
+titanic.groupby(["pclass", "sex"])['survived'].agg(["sum", "count", "mean"])
+
+#########################################
+# Görev 16:  30 yaşın altında olanlar 1, 30'a eşit ve üstünde olanlara 0 vericek bir fonksiyon yazınız.
+# Yazdığınız fonksiyonu kullanarak titanik veri setinde age_flag adında bir değişken oluşturunuz oluşturunuz. (apply ve lambda yapılarını kullanınız)
+#########################################
+titanic["age_flag"] = titanic["age"].apply(lambda age: 1 if age < 30 else 0)
+
+#########################################
+# Görev 17: Seaborn kütüphanesi içerisinden Tips veri setini tanımlayınız.
+#########################################
+Tips = sns.load_dataset("Tips")
+
+#########################################
+# Görev 18: Time değişkeninin kategorilerine (Dinner, Lunch) göre total_bill  değerlerinin toplamını, min, max ve ortalamasını bulunuz.
+#########################################
+Tips.groupby("time")["total_bill"].agg(["sum", "min", "max", "mean"])
+Tips.head()
+
+#########################################
+# Görev 19: Günlere ve time göre total_bill değerlerinin toplamını, min, max ve ortalamasını bulunuz.
+#########################################
+Tips.groupby(["time", "day"])["total_bill"].agg(["min", "sum", "max", "mean"])
+
+#########################################
+# Görev 20:Lunch zamanına ve kadın müşterilere ait total_bill ve tip  değerlerinin day'e göre toplamını, min, max ve ortalamasını bulunuz.
+#########################################
+Tips[(Tips["time"] == "Lunch") & (Tips["sex"] == "Female")].groupby("day")[["total_bill", "tip"]].agg(
+    ["max", "min", "sum", "mean"])
+
+Tips[(Tips["time"] == "Lunch") & (Tips["sex"] == "Female")].groupby("day")[["total_bill", "tip"]].agg(
+    ["max", "min", "sum", "mean"])
+
+#########################################
+# Görev 21: size'i 3'ten küçük, total_bill'i 10'dan büyük olan siparişlerin ortalaması nedir?
+#########################################
+
+Tips.loc[(Tips["size"] < 3) & (Tips["total_bill"] > 10)]["total_bill"].mean()
+
+#########################################
+# Görev 22: total_bill_tip_sum adında yeni bir değişken oluşturun. Her bir müşterinin ödediği totalbill ve tip in toplamını versin.
+#########################################
+Tips["total_bill_tip_sum"] = Tips["total_bill"] + Tips["tip"]
+
+#########################################
+# Görev 23: total_bill_tip_sum değişkenine göre büyükten küçüğe sıralayınız ve ilk 30 kişiyi yeni bir dataframe'e atayınız.
+#########################################
+top_cusumers = Tips.sort_values("total_bill_tip_sum",ascending=False).head(30)
